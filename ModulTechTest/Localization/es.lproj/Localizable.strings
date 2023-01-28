@@ -1,0 +1,13 @@
+"smartHouse" = "Casa Inteligente";
+"temperature" = "La temperatura";
+"position" = "Posición";
+"mode" = "Modo";
+"intensity" = "Intensidad";
+"openedAt" = "Abierto a";
+"opened" = "Abierto";
+"closed" = "Granja";
+"heater" = "Calentador";
+"rollerShutter" = "Persiana";
+"light" = "Lámpara";
+"error" = "Error";
+"errorAlertMessage" = "Ha ocurrido un error, inténtalo más tarde.";

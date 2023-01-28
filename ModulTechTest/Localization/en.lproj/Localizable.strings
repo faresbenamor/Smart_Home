@@ -1,0 +1,13 @@
+"smartHouse" = "Smart House";
+"temperature" = "Temperature";
+"position" = "Position";
+"mode" = "Mode";
+"intensity" = "Intensity";
+"openedAt" = "Opened at";
+"opened" = "Opened";
+"closed" = "Closed";
+"heater" = "Heater";
+"rollerShutter" = "RollerShutter";
+"light" = "Light";
+"Error" = "Error";
+"errorAlertMessage" = "An error has occured, please try later.";
