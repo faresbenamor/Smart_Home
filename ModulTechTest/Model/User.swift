@@ -9,16 +9,14 @@ import Foundation
 import UIKit
 
 public struct User: Codable {
-    var firstName: String
-    var lastName: String
-    var address: Address
-    var birthDate: Double
+    let firstName: String
+    let lastName: String
+    let address: Address
+    let birthDate: Double
 }
 
 public struct Address: Codable {
-    var city: String
-    var postalCode: Int
-    var street: String
-    var streetCode: String
-    var country: String
+    let city: String
+    let postalCode: Int
+    let street, streetCode, country: String
 }

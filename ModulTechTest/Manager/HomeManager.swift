@@ -10,7 +10,7 @@ import UIKit
 
 class HomeManager {
     
-    public static func getDevices(completion: @escaping DeviceResponseClosure) {
+    public static func getDevices(completion: @escaping HomeResponseClosure) {
         
         guard let URL_GET_DEVICES = URL(string: AppConstants.GET_DEVICES_URL) else {
             completion(false, nil)
@@ -30,7 +30,7 @@ class HomeManager {
                 // decoding from JSON to model
                 do {
                     let decoder = JSONDecoder()
-                    let model = try decoder.decode(DeviceResponse.self, from: dataResponse)
+                    let model = try decoder.decode(HomeResponse.self, from: dataResponse)
                     completion(true, model)
                     
                 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class DetailsDeviceViewController: UIViewController {
 
@@ -135,13 +136,58 @@ class DetailsDeviceViewController: UIViewController {
     var passedDevice: Device?
     var widthSliderTemp: NSLayoutConstraint!
     weak var delegate: DetailsDeviceDelegate?
-    
+    var viewModel: DetailsViewModel
+    private var subscriptions = Set<AnyCancellable>()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupAutoLayout()
+        subscribeControlsChanges()
         fillData()
+    }
+    
+    // MARK: - Init
+    public required init(viewModel: DetailsViewModel) {
+      self.viewModel = viewModel
+      super.init(nibName: nil, bundle: nil)
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+      fatalError("init(coder:) has not been implemented")
+    }
+    
+    func subscribeControlsChanges() {
+        viewModel.$sliderTemperatureValue
+            .receive(on: DispatchQueue.main)
+            .sink {  [weak self] _ in
+                self?.updateTemperatureLabel()
+            }.store(in: &subscriptions)
+        
+        viewModel.$sliderIntensityValue
+            .receive(on: DispatchQueue.main)
+            .sink {  [weak self] _ in
+                self?.updateIntensityLabel()
+            }.store(in: &subscriptions)
+        
+        viewModel.$sliderPositionValue
+            .receive(on: DispatchQueue.main)
+            .sink {  [weak self] _ in
+                self?.updatePositionLabel()
+            }.store(in: &subscriptions)
+        
+        viewModel.$switchLightIsOn
+            .receive(on: DispatchQueue.main)
+            .sink {  [weak self] _ in
+                self?.updateLightImage()
+            }.store(in: &subscriptions)
+        
+        viewModel.$switchHeaterIsOn
+            .receive(on: DispatchQueue.main)
+            .sink {  [weak self] _ in
+                self?.updateHeaterImage()
+            }.store(in: &subscriptions)
     }
     
     func setupUI() {
@@ -173,11 +219,11 @@ class DetailsDeviceViewController: UIViewController {
         temperatureStackView.addArrangedSubview(temperatureSlider)
         
         // Slider Add Action
-        intensityOrPositionSlider.addTarget(self, action: #selector(sliderIntensityOrPositionChange), for: .valueChanged)
-        temperatureSlider.addTarget(self, action: #selector(tempSliderChange), for: .valueChanged)
+        intensityOrPositionSlider.addTarget(self, action: #selector(sliderIntensityOrPositionChange(_:)), for: .valueChanged)
+        temperatureSlider.addTarget(self, action: #selector(tempSliderChange(_:)), for: .valueChanged)
         
         // Switcher Add Action
-        switcher.addTarget(self, action: #selector(switcherChanged), for: .valueChanged)
+        switcher.addTarget(self, action: #selector(switcherChanged(_:)), for: .valueChanged)
     }
     
     func setupAutoLayout() {
@@ -207,116 +253,114 @@ class DetailsDeviceViewController: UIViewController {
         ])
     }
     
-    @objc func sliderIntensityOrPositionChange() {
-        // Update label value
-        intensityOrPositionValueLabel.text = Int(intensityOrPositionSlider.value).description + "%"
+    @objc func sliderIntensityOrPositionChange(_ sender: UISlider!) {
+        viewModel.getProductType() == .light ? (viewModel.sliderIntensityValue = Int(sender.value)) : (viewModel.sliderPositionValue = Int(sender.value))
         
         // Update changes to passed device object
-        guard let productType = passedDevice?.productType else { return }
-        let product = ProductType(rawValue: productType)
-        product == .light ? (passedDevice?.intensity = Int(intensityOrPositionSlider.value)) : (passedDevice?.position = Int(intensityOrPositionSlider.value))
+        viewModel.getProductType() == .light ? (viewModel.passedDevice.intensity = viewModel.sliderIntensityValue) : (viewModel.passedDevice.position = viewModel.sliderPositionValue)
         
         // Pass changes to delegate
-        guard let passedDevice = passedDevice else { return }
-        delegate?.updateDeviceStates(device: passedDevice)
+        delegate?.updateDeviceStates(device: viewModel.passedDevice)
     }
     
-    @objc func tempSliderChange() {
-        // Update label value
-        temperatureValueLabel.text = Int(temperatureSlider.value).description + "°"
+    @objc func tempSliderChange(_ sender: UISlider!) {
+        // Update slider value
+        viewModel.sliderTemperatureValue = Int(sender.value)
         
         // Update changes to passed device object
-        passedDevice?.temperature = Int(temperatureSlider.value)
+        viewModel.passedDevice.temperature = viewModel.sliderTemperatureValue
         
         // Pass changes to delegate
-        guard let passedDevice = passedDevice else { return }
-        delegate?.updateDeviceStates(device: passedDevice)
+        delegate?.updateDeviceStates(device: viewModel.passedDevice)
     }
     
-    @objc func switcherChanged() {
-        guard let productType = passedDevice?.productType else { return }
-        let product = ProductType(rawValue: productType)
+    @objc func switcherChanged(_ sender: UISwitch!) {
+        // Update switch value
+        viewModel.getProductType() == .light ? (viewModel.switchLightIsOn = sender.isOn) : (viewModel.switchHeaterIsOn = sender.isOn)
         
-        if product == .light {
-            imageDevice.image = switcher.isOn ? UIImage(named: "DeviceLightOnIcon") : UIImage(named: "DeviceLightOffIcon")
-            
-            // Update changes to passed device object
-            passedDevice?.mode = switcher.isOn ? "ON" : "OFF"
-            
-            // Pass changes to delegate
-            guard let passedDevice = passedDevice else { return }
-            delegate?.updateDeviceStates(device: passedDevice)
-            
+        // Update changes to passed device object
+        viewModel.getProductType() == .light ? (viewModel.passedDevice.mode = sender.isOn ? "ON" : "OFF") : (viewModel.passedDevice.mode = sender.isOn ? "ON" : "OFF")
+        
+        // Pass changes to delegate
+        delegate?.updateDeviceStates(device: viewModel.passedDevice)
+    }
+    
+    private func updateTemperatureLabel() {
+        if let temperature = viewModel.sliderTemperatureValue {
+            temperatureValueLabel.text = "\(temperature)\(viewModel.getLabelDegree())"
         }
-        else if product == .heater {
-            imageDevice.image = switcher.isOn ? UIImage(named: "DeviceHeaterOnIcon") : UIImage(named: "DeviceHeaterOffIcon")
-            
-            // Update changes to passed device object
-            passedDevice?.mode = switcher.isOn ? "ON" : "OFF"
-            
-            // Pass changes to delegate
-            guard let passedDevice = passedDevice else { return }
-            delegate?.updateDeviceStates(device: passedDevice)
+    }
+    
+    private func updateIntensityLabel() {
+        if let intensity = viewModel.sliderIntensityValue {
+            intensityOrPositionValueLabel.text = "\(intensity)\(viewModel.getLabelDegree())"
+        }
+    }
+    
+    private func updatePositionLabel() {
+        if let position = viewModel.sliderPositionValue {
+            intensityOrPositionValueLabel.text = "\(position)\(viewModel.getLabelDegree())"
+        }
+    }
+    
+    private func updateLightImage() {
+        if let isOn = viewModel.switchLightIsOn {
+            imageDevice.image = isOn ? UIImage(named: ImagesNames.lightOn) : UIImage(named: ImagesNames.lightOff)
+        }
+    }
+    
+    private func updateHeaterImage() {
+        if let isOn = viewModel.switchHeaterIsOn {
+            imageDevice.image = isOn ? UIImage(named: ImagesNames.heaterOn) : UIImage(named: ImagesNames.heaterOff)
         }
     }
     
     func fillData() {
-        guard let productType = passedDevice?.productType else { return }
-        let product = ProductType(rawValue: productType)
+        nameDeviceLabel.text = viewModel.getDeviceName()
         
-        switch product {
+        switch viewModel.getProductType() {
             
         case .light:
             setLightData()
             
-        case .rollerShutter:
-            setRollerShutterData()
-            
         case .heater:
             setHeaterData()
             
-        default:
-            break
+        case .rollerShutter:
+            setRollerShutterData()
         }
     }
     
     func setLightData() {
-        nameDeviceLabel.text = L10n.light
-        imageDevice.image = passedDevice?.mode == "ON" ? UIImage(named: "DeviceLightOnIcon") : UIImage(named: "DeviceLightOffIcon")
-        switcher.isOn = passedDevice?.mode == "ON" ? true : false
+        imageDevice.image = viewModel.getDeviceMode() == "ON" ? viewModel.getImageOn() : viewModel.getImageOff()
+        switcher.isOn = viewModel.getDeviceMode() == "ON" ? true : false
         intensityOrPositionLabel.text = L10n.intensity
-        intensityOrPositionValueLabel.text = "\(passedDevice?.intensity?.description ?? "")%"
-        if let intensity = passedDevice?.intensity {
-            intensityOrPositionSlider.value = Float(intensity)
-        }
+        intensityOrPositionValueLabel.text = (viewModel.sliderIntensityValue?.description ?? "") + viewModel.getLabelDegree()
+        intensityOrPositionSlider.value = Float(viewModel.sliderIntensityValue ?? 0)
         temperatureStackView.isHidden = true
     }
     
     func setRollerShutterData() {
-        nameDeviceLabel.text = L10n.rollerShutter
-        imageDevice.image = UIImage(named: "DeviceRollerShutterIcon")
+        imageDevice.image = UIImage(named: ImagesNames.rolleShutter)
         intensityOrPositionLabel.text = L10n.position
-        intensityOrPositionValueLabel.text = "\(passedDevice?.position?.description ?? "")%"
-        if let position = passedDevice?.position {
-            intensityOrPositionSlider.value = Float(position)
-        }
+        intensityOrPositionValueLabel.text = (viewModel.sliderPositionValue?.description ?? "") + viewModel.getLabelDegree()
+        intensityOrPositionSlider.value = Float(viewModel.sliderPositionValue ?? 0)
         temperatureStackView.isHidden = true
         modeStackView.isHidden = true
     }
     
     func setHeaterData() {
-        nameDeviceLabel.text = L10n.heater
-        imageDevice.image = passedDevice?.mode == "ON" ? UIImage(named: "DeviceHeaterOnIcon") : UIImage(named: "DeviceHeaterOffIcon")
-        switcher.isOn = passedDevice?.mode == "ON" ? true : false
-        temperatureValueLabel.text = (passedDevice?.temperature?.description ?? "") + "°"
-        if let temp = passedDevice?.temperature {
-            temperatureSlider.value = Float(temp)
-        }
+        imageDevice.image = viewModel.getDeviceMode() == "ON" ? viewModel.getImageOn() : viewModel.getImageOff()
+        switcher.isOn = viewModel.getDeviceMode() == "ON" ? true : false
+        temperatureValueLabel.text = (viewModel.sliderTemperatureValue?.description ?? "") + viewModel.getLabelDegree()
+        temperatureSlider.value = Float(viewModel.sliderTemperatureValue ?? 0)
+        intensityOrPositionStackView.isHidden = true
+        
+        // Vertical Slider
         temperatureSlider.transform = CGAffineTransform(rotationAngle: -.pi/2)
         temperatureSlider.heightAnchor.constraint(equalToConstant: temperatureSlider.frame.height + 40).isActive = true
         widthSliderTemp.isActive = false
         temperatureSlider.widthAnchor.constraint(equalTo: temperatureStackView.widthAnchor, multiplier: 0.4).isActive = true
-        intensityOrPositionStackView.isHidden = true
     }
 }
 

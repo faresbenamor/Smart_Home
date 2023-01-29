@@ -24,6 +24,11 @@
 		385034282983415500352056 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385034272983415500352056 /* AppConstants.swift */; };
 		3850342A298348DD00352056 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38503429298348DD00352056 /* HomeViewModel.swift */; };
 		3850342C29834DAB00352056 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3850342B29834DAB00352056 /* UIViewController.swift */; };
+		387884F42985A4F300057766 /* CellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387884F32985A4F300057766 /* CellViewModel.swift */; };
+		387885322985B3EE00057766 /* ImagesNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387885312985B3EE00057766 /* ImagesNames.swift */; };
+		387885352985BF1900057766 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387885342985BF1900057766 /* AppCoordinator.swift */; };
+		387885372985BF4400057766 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387885362985BF4400057766 /* Coordinator.swift */; };
+		387885392985CFD600057766 /* DetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387885382985CFD600057766 /* DetailsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +53,11 @@
 		385034272983415500352056 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		38503429298348DD00352056 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		3850342B29834DAB00352056 /* UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
+		387884F32985A4F300057766 /* CellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellViewModel.swift; sourceTree = "<group>"; };
+		387885312985B3EE00057766 /* ImagesNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesNames.swift; sourceTree = "<group>"; };
+		387885342985BF1900057766 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		387885362985BF4400057766 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		387885382985CFD600057766 /* DetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,9 +90,9 @@
 		380169AA2981C39500BF8EAA /* ModulTechTest */ = {
 			isa = PBXGroup;
 			children = (
-				380169AB2981C39500BF8EAA /* AppDelegate.swift */,
-				380169AD2981C39500BF8EAA /* SceneDelegate.swift */,
-				385034172981E21B00352056 /* Home */,
+				387884F129858F4500057766 /* Delegates */,
+				387885332985BD7D00057766 /* Coordinators */,
+				385034172981E21B00352056 /* Presentation */,
 				3850342329833F7100352056 /* Manager */,
 				3850341E29833D7300352056 /* Model */,
 				3850341B2981F28100352056 /* Extensions */,
@@ -99,6 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				38028BC729847191001C1677 /* DetailsDeviceViewController.swift */,
+				387885382985CFD600057766 /* DetailsViewModel.swift */,
 			);
 			path = DetailsDevice;
 			sourceTree = "<group>";
@@ -112,22 +123,20 @@
 			path = Localization;
 			sourceTree = "<group>";
 		};
-		385034172981E21B00352056 /* Home */ = {
+		385034172981E21B00352056 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
-				38503429298348DD00352056 /* HomeViewModel.swift */,
-				380169AF2981C39500BF8EAA /* HomeViewController.swift */,
-				38028BC429846AA6001C1677 /* Home+CollectionViewExtension.swift */,
+				387884F22985917200057766 /* Home */,
 				38028BC629847153001C1677 /* DetailsDevice */,
-				385034182981E22A00352056 /* Cells */,
 			);
-			path = Home;
+			path = Presentation;
 			sourceTree = "<group>";
 		};
 		385034182981E22A00352056 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
 				385034192981E24E00352056 /* DevicesCollectionViewCell.swift */,
+				387884F32985A4F300057766 /* CellViewModel.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -162,8 +171,38 @@
 			isa = PBXGroup;
 			children = (
 				385034272983415500352056 /* AppConstants.swift */,
+				387885312985B3EE00057766 /* ImagesNames.swift */,
 			);
 			path = Constants;
+			sourceTree = "<group>";
+		};
+		387884F129858F4500057766 /* Delegates */ = {
+			isa = PBXGroup;
+			children = (
+				380169AB2981C39500BF8EAA /* AppDelegate.swift */,
+				380169AD2981C39500BF8EAA /* SceneDelegate.swift */,
+			);
+			path = Delegates;
+			sourceTree = "<group>";
+		};
+		387884F22985917200057766 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				38503429298348DD00352056 /* HomeViewModel.swift */,
+				380169AF2981C39500BF8EAA /* HomeViewController.swift */,
+				38028BC429846AA6001C1677 /* Home+CollectionViewExtension.swift */,
+				385034182981E22A00352056 /* Cells */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		387885332985BD7D00057766 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				387885362985BF4400057766 /* Coordinator.swift */,
+				387885342985BF1900057766 /* AppCoordinator.swift */,
+			);
+			path = Coordinators;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -240,15 +279,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				385034252983407E00352056 /* HomeManager.swift in Sources */,
+				387885392985CFD600057766 /* DetailsViewModel.swift in Sources */,
 				385034282983415500352056 /* AppConstants.swift in Sources */,
+				387885352985BF1900057766 /* AppCoordinator.swift in Sources */,
 				3850341A2981E24E00352056 /* DevicesCollectionViewCell.swift in Sources */,
 				3850342C29834DAB00352056 /* UIViewController.swift in Sources */,
 				3850342A298348DD00352056 /* HomeViewModel.swift in Sources */,
 				38028BC529846AA6001C1677 /* Home+CollectionViewExtension.swift in Sources */,
+				387885322985B3EE00057766 /* ImagesNames.swift in Sources */,
+				387885372985BF4400057766 /* Coordinator.swift in Sources */,
 				380169B02981C39500BF8EAA /* HomeViewController.swift in Sources */,
 				380169AC2981C39500BF8EAA /* AppDelegate.swift in Sources */,
 				3850342029833D8F00352056 /* Device.swift in Sources */,
 				380169AE2981C39500BF8EAA /* SceneDelegate.swift in Sources */,
+				387884F42985A4F300057766 /* CellViewModel.swift in Sources */,
 				3850341D2981F29800352056 /* UIColor.swift in Sources */,
 				3850342229833E2A00352056 /* User.swift in Sources */,
 				38028BCB2985452D001C1677 /* GeneratedStrings.swift in Sources */,

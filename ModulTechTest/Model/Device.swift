@@ -8,17 +8,17 @@
 import Foundation
 import UIKit
 
-public struct DeviceResponse: Codable {
-    var devices: [Device]
-    var user: User
+public struct HomeResponse: Codable {
+    let devices: [Device]
+    let user: User
 }
 
 public struct Device: Codable {
-    var id: Int
-    var deviceName: String
+    let id: Int
+    let deviceName: String
     var intensity: Int?
     var mode: String?
     var position: Int?
     var temperature: Int?
-    var productType: String
+    let productType: String
 }

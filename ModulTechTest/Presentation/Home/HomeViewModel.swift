@@ -10,7 +10,7 @@ import UIKit
 
 class HomeViewModel: NSObject {
     
-    func getDevices(_ completion: DeviceResponseClosure?) {
+    func getDevices(_ completion: HomeResponseClosure?) {
         HomeManager.getDevices(completion: { success, devices in
             completion?(success, devices)
         })

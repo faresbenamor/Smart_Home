@@ -9,10 +9,31 @@ import UIKit
 
 class HomeViewController: UIViewController {
 
-    var devicesCollectionView: UICollectionView?
     public var viewModel: HomeViewModel
-    var devicesArray: [Device] = []
+    var callback: ((_ item: Device) -> Void)?
+    var devicesArray: [Device] = [] {
+        didSet {
+            devicesCollectionView.reloadData()
+        }
+    }
     let activityIndicator = UIActivityIndicatorView(style: .large)
+    
+    lazy var devicesCollectionView: UICollectionView = {
+        // FlowLayout
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = .zero
+        var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        
+        collectionView.backgroundColor = .customBlue
+        collectionView.register(DevicesCollectionViewCell.self, forCellWithReuseIdentifier: DevicesCollectionViewCell.identifier)
+        
+        // DataSource and Delegate
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
+        return collectionView
+    }()
     
     // MARK: - Init
     public required init(viewModel: HomeViewModel) {
@@ -26,42 +47,15 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupCollectionView()
-        setupActivityIndicator()
+        setupUI()
         setupNavBar()
         getDevices()
     }
     
-    func setupActivityIndicator() {
-        devicesCollectionView?.addSubview(activityIndicator)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-        activityIndicator.color = .white
-    }
-    
-    func setupCollectionView() {
-        // FlowLayout
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = .zero
-        devicesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        
-        guard let devicesCollectionView = devicesCollectionView else { return }
-        
-        // DataSource and Delegate
-        devicesCollectionView.delegate = self
-        devicesCollectionView.dataSource = self
-        
-        // Register and addSubView
-        devicesCollectionView.register(DevicesCollectionViewCell.self, forCellWithReuseIdentifier: DevicesCollectionViewCell.identifier)
-        view.addSubview(devicesCollectionView)
-        
-        // BackgroundColor
+    func setupUI() {
+        // View
         view.backgroundColor = .customBlue
-        devicesCollectionView.backgroundColor = .customBlue
+        view.addSubview(devicesCollectionView)
         
         // AutoLayout
         devicesCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -83,19 +77,19 @@ class HomeViewController: UIViewController {
     }
     
     func getDevices() {
-        activityIndicator.startAnimating()
-        viewModel.getDevices({ [weak self] iSsuccess, devicesResponse in
+        showActivityIndicator(activityIndicator: activityIndicator, onView: devicesCollectionView)
+        viewModel.getDevices({ [weak self] iSsuccess, homeResponse in
+            guard let `self` = self else { return }
             if iSsuccess {
-                guard let devicesResponse = devicesResponse else { return }
-                self?.devicesArray = devicesResponse.devices
+                guard let homeResponse = homeResponse else { return }
                 DispatchQueue.main.async {
-                    self?.devicesCollectionView?.reloadData()
-                    self?.activityIndicator.stopAnimating()
+                    self.devicesArray = homeResponse.devices
+                    self.stopActivityIndicator(activityIndicator: self.activityIndicator)
                 }
             }
             else {
                 DispatchQueue.main.async {
-                    self?.showAlert(title: L10n.error, message: L10n.errorAlertMessage)
+                    self.showAlert(title: L10n.error, message: L10n.errorAlertMessage)
                 }
             }
         })

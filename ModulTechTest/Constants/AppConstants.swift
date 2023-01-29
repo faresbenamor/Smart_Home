@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public typealias DeviceResponseClosure = (Bool, DeviceResponse?) -> Void
+public typealias HomeResponseClosure = (Bool, HomeResponse?) -> Void
 
 class AppConstants {
     static let GET_DEVICES_URL = "http://storage42.com/modulotest/data.json"

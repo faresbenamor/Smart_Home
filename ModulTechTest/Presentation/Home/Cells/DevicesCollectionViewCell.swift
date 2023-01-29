@@ -88,6 +88,70 @@ class DevicesCollectionViewCell: UICollectionViewCell {
         ])
     }
     
+    public func configure(with viewModel: CellViewModel) {
+        let product = ProductType(rawValue: viewModel.productType)
+
+        if let mode = viewModel.mode {
+            modeLabel.text = "\(L10n.mode): \(mode)"
+            modeLabel.isHidden = false
+        }
+        else {
+            modeLabel.isHidden = true
+        }
+        
+        // Intensity for Light
+        if let intensity = viewModel.intensity {
+            intensityLabel.text = "\(L10n.intensity): \(intensity.description)%"
+            intensityLabel.isHidden = false
+        }
+        else {
+            intensityLabel.isHidden = true
+        }
+        
+        // Position for RullerShutter
+        if let position = viewModel.position {
+            if position == 0 {
+                positionLabel.text = L10n.closed
+            }
+            else if position == 100 {
+                positionLabel.text = L10n.opened
+            }
+            else {
+                positionLabel.text = "\(L10n.openedAt) \(position.description)%"
+            }
+            positionLabel.isHidden = false
+        }
+        else {
+            positionLabel.isHidden = true
+        }
+        
+        // Temperature for Heater
+        if let temperature = viewModel.temperature {
+            
+            temperatureLabel.text = "Temp: \(temperature.description)°"
+            temperatureLabel.isHidden = false
+        }
+        else {
+            temperatureLabel.isHidden = true
+        }
+
+        // Image Device
+        switch product {
+
+        case .rollerShutter:
+            imageDevice.image = UIImage(named: ImagesNames.rolleShutter)
+
+        case .heater:
+            imageDevice.image = viewModel.mode == "ON" ? UIImage(named: ImagesNames.heaterOn) : UIImage(named: ImagesNames.heaterOff)
+
+        case .light:
+            imageDevice.image = viewModel.mode == "ON" ? UIImage(named: ImagesNames.lightOn) : UIImage(named: ImagesNames.lightOff)
+
+        default:
+            break
+        }
+    }
+    
     // A little animation
     override var isHighlighted: Bool {
         didSet {
